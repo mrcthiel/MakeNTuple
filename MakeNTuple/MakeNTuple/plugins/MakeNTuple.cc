@@ -175,7 +175,12 @@ class MakeNTuple : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 		std::vector<double> *ProtCand_rpid		= new std::vector<double> ();
 		std::vector<double> *ProtCand_arm       	= new std::vector<double> ();
 		std::vector<double> *ProtCand_ismultirp		= new std::vector<double> ();
-
+                std::vector<double> *ProtCand_x                = new std::vector<double> ();
+                std::vector<double> *ProtCand_y                = new std::vector<double> ();
+                std::vector<double> *ProtCand_xn                = new std::vector<double> ();
+                std::vector<double> *ProtCand_yn                = new std::vector<double> ();
+                std::vector<double> *ProtCand_xf                = new std::vector<double> ();
+                std::vector<double> *ProtCand_yf                = new std::vector<double> ();
 
 		std::vector<double> *muon_px        = new std::vector<double> ();
 		std::vector<double> *muon_py        = new std::vector<double> ();
@@ -397,7 +402,14 @@ MakeNTuple::MakeNTuple(const edm::ParameterSet& iConfig):
 	EventBranchs->Branch("ProtCand_rpid","std::vector<double>",&ProtCand_rpid);
 	EventBranchs->Branch("ProtCand_arm","std::vector<double>",&ProtCand_arm);
 	EventBranchs->Branch("ProtCand_ismultirp","std::vector<double>",&ProtCand_ismultirp);
+        EventBranchs->Branch("ProtCand_x","std::vector<double>",&ProtCand_x);
+        EventBranchs->Branch("ProtCand_y","std::vector<double>",&ProtCand_y);
+        EventBranchs->Branch("ProtCand_xn","std::vector<double>",&ProtCand_xn);
+        EventBranchs->Branch("ProtCand_yn","std::vector<double>",&ProtCand_yn);
+        EventBranchs->Branch("ProtCand_xf","std::vector<double>",&ProtCand_xf);
+        EventBranchs->Branch("ProtCand_yf","std::vector<double>",&ProtCand_yf);
 
+		
 	EventBranchs->Branch("muon_px","std::vector<double>",&muon_px);
 	EventBranchs->Branch("muon_py","std::vector<double>",&muon_py);
 	EventBranchs->Branch("muon_pz","std::vector<double>",&muon_pz);
@@ -567,6 +579,12 @@ MakeNTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	ProtCand_rpid->clear();
 	ProtCand_arm->clear();
 	ProtCand_ismultirp->clear();
+        ProtCand_x->clear();
+        ProtCand_y->clear();
+        ProtCand_xn->clear();
+        ProtCand_yn->clear();
+        ProtCand_xf->clear();
+        ProtCand_yf->clear();
 
 	muon_px->clear();
 	muon_py->clear();
@@ -795,6 +813,20 @@ MakeNTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				ProtCand_rpid->push_back(-999);
 				ProtCand_arm->push_back(armId);
 				ProtCand_ismultirp->push_back(1);
+                                ProtCand_x->push_back(-999.);
+                                ProtCand_y->push_back(-999.);
+                                int cont = 0;
+                                for (const auto &tr : recoMultiRPProtons->at(i).contributingLocalTracks()) {
+                                        if(cont==0){
+                                                ProtCand_xn->push_back(tr->getX());
+                                                ProtCand_yn->push_back(tr->getY());
+                                        }
+                                        if(cont==1){
+                                                ProtCand_xf->push_back(tr->getX());
+                                                ProtCand_yf->push_back(tr->getY());
+                                        }
+                                        cont++;
+                                }
 			}
 		}
 
@@ -810,6 +842,14 @@ MakeNTuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				ProtCand_rpid->push_back(decRPId);
 				ProtCand_arm->push_back(-999);
 				ProtCand_ismultirp->push_back(0);
+                                for (const auto &tr : recoSingleRPProtons->at(i).contributingLocalTracks()) {
+                                        ProtCand_x->push_back(tr->getX());
+                                        ProtCand_y->push_back(tr->getY());
+                                }
+                                ProtCand_xn->push_back(-999.);
+                                ProtCand_yn->push_back(-999.);
+                                ProtCand_xf->push_back(-999.);
+                                ProtCand_yf->push_back(-999.);				
 			}
 		}
 	}
